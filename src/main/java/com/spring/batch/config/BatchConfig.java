@@ -1,4 +1,4 @@
-package com.javatechie.spring.batch.config;
+package com.spring.batch.config;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -18,14 +18,14 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.javatechie.spring.batch.entity.Customer;
-import com.javatechie.spring.batch.repository.CustomerRepository;
+import com.spring.batch.entity.Customer;
+import com.spring.batch.repository.CustomerRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
-public class SpringBatchConfig
+public class BatchConfig
 {
 	private final CustomerRepository customerRepository;
 
@@ -73,7 +73,7 @@ public class SpringBatchConfig
 	}
 
 	@Bean
-	public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager)
+	Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager)
 	{
 		return new StepBuilder("csv-step", jobRepository).<Customer, Customer>chunk(10, transactionManager)
 				.reader(reader())
