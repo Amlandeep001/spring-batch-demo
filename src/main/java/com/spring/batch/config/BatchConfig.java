@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class BatchConfig
 {
 	private final CustomerRepository customerRepository;
+	private final CustomerProcessor customerProcessor;
 
 	@Bean
 	FlatFileItemReader<Customer> reader()
@@ -58,12 +59,6 @@ public class BatchConfig
 	}
 
 	@Bean
-	CustomerProcessor processor()
-	{
-		return new CustomerProcessor();
-	}
-
-	@Bean
 	RepositoryItemWriter<Customer> writer()
 	{
 		RepositoryItemWriter<Customer> writer = new RepositoryItemWriter<>();
@@ -73,21 +68,21 @@ public class BatchConfig
 	}
 
 	@Bean
-	Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager)
+	Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager, TaskExecutor taskExecutor)
 	{
 		return new StepBuilder("csv-step", jobRepository).<Customer, Customer>chunk(10, transactionManager)
 				.reader(reader())
-				.processor(processor())
+				.processor(customerProcessor)
 				.writer(writer())
-				.taskExecutor(taskExecutor())
+				.taskExecutor(taskExecutor)
 				.build();
 	}
 
 	@Bean
-	Job runJob(JobRepository jobRepository, PlatformTransactionManager transactionManager)
+	Job runJob(JobRepository jobRepository, PlatformTransactionManager transactionManager, TaskExecutor taskExecutor)
 	{
 		return new JobBuilder("importCustomers", jobRepository)
-				.flow(step1(jobRepository, transactionManager))
+				.flow(step1(jobRepository, transactionManager, taskExecutor))
 				.end()
 				.build();
 	}
